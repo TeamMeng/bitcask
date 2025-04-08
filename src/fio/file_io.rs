@@ -81,7 +81,7 @@ mod tests {
 
     #[test]
     fn file_io_write_should_work() {
-        let path = PathBuf::from("./fixtures/a.data");
+        let path = PathBuf::from("/tmp/a.data");
 
         let f = FileIo::try_new(path.clone());
         assert!(f.is_ok());
@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn file_io_read_should_work() {
-        let path = PathBuf::from("./fixtures/b.data");
+        let path = PathBuf::from("/tmp/b.data");
 
         let f = FileIo::try_new(path.clone());
         assert!(f.is_ok());
@@ -118,7 +118,7 @@ mod tests {
 
     #[test]
     fn file_io_fio_should_work() {
-        let path = PathBuf::from("./fixtures/c.data");
+        let path = PathBuf::from("/tmp/c.data");
 
         let f = FileIo::try_new(path.clone());
         assert!(f.is_ok());
