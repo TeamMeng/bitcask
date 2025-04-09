@@ -1,20 +1,20 @@
 use super::Indexer;
-use crate::LogRecord;
+use crate::LogRecordPos;
 use parking_lot::RwLock;
 use std::{collections::BTreeMap, sync::Arc};
 
 // BTree 索引, 主要封装标准库中的 BTreeMap 结构
 #[derive(Default)]
 pub struct BTree {
-    tree: Arc<RwLock<BTreeMap<Vec<u8>, LogRecord>>>,
+    tree: Arc<RwLock<BTreeMap<Vec<u8>, LogRecordPos>>>,
 }
 
 impl Indexer for BTree {
-    fn get(&self, key: Vec<u8>) -> Option<LogRecord> {
+    fn get(&self, key: Vec<u8>) -> Option<LogRecordPos> {
         self.tree.read().get(&key).copied()
     }
 
-    fn put(&self, key: Vec<u8>, pos: LogRecord) -> bool {
+    fn put(&self, key: Vec<u8>, pos: LogRecordPos) -> bool {
         if self.get(key.clone()).is_some() {
             return false;
         }
@@ -42,10 +42,10 @@ mod tests {
         let key = "".as_bytes().to_vec();
 
         // success put
-        assert!(tree.put(key.clone(), LogRecord::new(1, 10)));
+        assert!(tree.put(key.clone(), LogRecordPos::new(1, 10)));
 
         // failed put
-        assert!(!tree.put(key.clone(), LogRecord::new(1, 10)));
+        assert!(!tree.put(key.clone(), LogRecordPos::new(1, 10)));
 
         let pos = tree.get(key.clone());
 
