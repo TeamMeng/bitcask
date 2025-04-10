@@ -5,7 +5,7 @@ mod fio;
 mod index;
 mod options;
 
-pub use data::{DataFile, LogRecord, LogRecordPos, LogRecordType};
+pub use data::{DATA_FILE_SUFFIX, DataFile, LogRecord, LogRecordPos, LogRecordType, ReadLogRecord};
 pub use db::Engine;
 pub use error::Errors;
 pub use error::Result;

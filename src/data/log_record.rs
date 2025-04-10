@@ -23,6 +23,12 @@ pub struct LogRecordPos {
     offset: u64,
 }
 
+/// 从数据文件中读取的 log_record 信息, 包含其 size
+pub struct ReadLogRecord {
+    pub(crate) record: LogRecord,
+    pub(crate) size: u64,
+}
+
 impl LogRecordPos {
     pub fn new(file_id: u32, offset: u64) -> Self {
         Self { file_id, offset }
