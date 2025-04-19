@@ -104,6 +104,37 @@ impl Engine {
         Ok(())
     }
 
+    /// 根据 key 删除对应的数据
+    pub fn delete(&self, key: Bytes) -> Result<()> {
+        // 判断 key 的有效性
+        if key.is_empty() {
+            return Err(Errors::KeyIsEmpty);
+        }
+
+        // 从内存索引当中取出对应的数据, 不存在的话直接返回
+        if self.index.get(key.to_vec()).is_none() {
+            return Ok(());
+        }
+
+        // 构建 LogRecord, 标识算是被删除的
+        let mut record = LogRecord {
+            key: key.to_vec(),
+            value: Default::default(),
+            rec_type: LogRecordType::DELETED,
+        };
+
+        // 写入到数据文件中
+        self.append_log_record(&mut record)?;
+
+        // 更新内存索引中对应的 key
+        let flag = self.index.delete(key.to_vec());
+        if !flag {
+            return Err(Errors::IndexUpdateFailed);
+        }
+
+        Ok(())
+    }
+
     // 根据 key 获取对应的数据
     pub fn get(&self, key: Bytes) -> Result<Bytes> {
         if key.is_empty() {
@@ -209,12 +240,16 @@ impl Engine {
 
                 let log_record_pos = LogRecordPos::new(*file_id, offset);
 
-                match log_record.rec_type {
+                let flag = match log_record.rec_type {
                     LogRecordType::NORMAL => {
                         self.index.put(log_record.key.to_vec(), log_record_pos)
                     }
                     LogRecordType::DELETED => self.index.delete(log_record.key.to_vec()),
                 };
+
+                if !flag {
+                    return Err(Errors::IndexUpdateFailed);
+                }
 
                 // 　递增 offset, 下一次读取的时候从新的位置开始
                 offset += size;
